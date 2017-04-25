@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Code Multiplication - IotNetworks</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <!-- Open Graph tags -->
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Code Multiplication"/>
+            <meta property="og:url" content="/drafts/CodeMultiplication.html"/>
+            <meta property="og:description" content="Code Multiplication"/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.yeti.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/emacs.css" rel="stylesheet">
+        <link href="/theme/css/typogrify.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+        <link href="/static/custom.css" rel="stylesheet">
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+IotNetworks            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/pages/about.html">About</a></li>
+                        <li class="active">
+                            <a href="/category/blog.html">Blog</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="/drafts/CodeMultiplication.html"
+                       rel="bookmark"
+                       title="Permalink to Code Multiplication">
+                        Code&nbsp;Multiplication
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-06-08T12:00:00+02:00"> Sun 08 June 2014</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="/tag/programming.html">Programming</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Specializing code at compile time is often useful for high performance code. I&#8217;ve heard this specific technique referred to as <em>code multiplication</em>. A google search doesn&#8217;t find anything with that name, so I&#8217;ll describe it&nbsp;here.</p>
+<p>Say you have some code that does different things based on N boolean parameters. What we want to do is create 2^N different permutations of that function, each one specialized for a specific set of input values. At runtime, we&#8217;ll go through a jump table of functions to execute the permutation we want. I&#8217;ll describe a couple of ways to do that. For the examples below, here&#8217;s the function that we&#8217;ll be&nbsp;specializing:</p>
+<div class="highlight"><pre><span></span>int compute_sum(bool branch0, bool branch1, bool branch2)
+{
+    int sum = 0;
+    if (branch0)
+       sum |= 1;
+    if (branch1)
+       sum |= 2;
+    if (branch3)
+       sum |= 4;
+    return sum;
+}
+</pre></div>
+
+
+<h1>C&nbsp;Preprocessor</h1>
+<p>You can use the C preprocessor to generate the permutations by having one file contain code that is driven by <code>#define</code><span class="quo">&#8216;</span>s, and a second file that <code>#include</code><span class="quo">&#8216;</span>s the first file over and over&nbsp;again:</p>
+<div class="highlight"><pre><span></span>// FunctionKernel.h
+int compute_sum_##FN_NAME()
+{
+    int sum = 0;
+    #if BRANCH0
+        sum |= 1;
+    #endif
+    #if BRANCH1
+        sum |= 2;
+    #endif
+    #if BRANCH2
+        sum |= 4;
+    #endif
+}
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1">// Function.cpp</span>
+<span class="cp">#define BRANCH0 0</span>
+<span class="cp">#define BRANCH1 0</span>
+<span class="cp">#define BRANCH2 0</span>
+<span class="cp">#define FN_NAME FFF</span>
+<span class="cp">#include</span> <span class="cpf">&quot;FunctionKernel.h&quot;</span><span class="cp"></span>
+<span class="cp">#undef BRANCH0</span>
+<span class="cp">#undef BRANCH1</span>
+<span class="cp">#undef BRANCH2</span>
+
+<span class="cp">#define BRANCH0 1</span>
+<span class="cp">#define BRANCH1 0</span>
+<span class="cp">#define BRANCH2 0</span>
+<span class="cp">#define FN_NAME FFT</span>
+<span class="cp">#include</span> <span class="cpf">&quot;FunctionKernel.h&quot;</span><span class="cp"></span>
+<span class="cp">#undef BRANCH0</span>
+<span class="cp">#undef BRANCH1</span>
+<span class="cp">#undef BRANCH2</span>
+
+<span class="cp">#define BRANCH0 0</span>
+<span class="cp">#define BRANCH1 1</span>
+<span class="cp">#define BRANCH2 0</span>
+<span class="cp">#define FN_NAME FTF</span>
+<span class="cp">#include</span> <span class="cpf">&quot;FunctionKernel.h&quot;</span><span class="cp"></span>
+<span class="cp">#undef BRANCH0</span>
+<span class="cp">#undef BRANCH1</span>
+<span class="cp">#undef BRANCH2</span>
+
+<span class="cp">#define BRANCH0 1</span>
+<span class="cp">#define BRANCH1 1</span>
+<span class="cp">#define BRANCH2 0</span>
+<span class="cp">#define FN_NAME FTT</span>
+<span class="cp">#include</span> <span class="cpf">&quot;FunctionKernel.h&quot;</span><span class="cp"></span>
+<span class="cp">#undef BRANCH0</span>
+<span class="cp">#undef BRANCH1</span>
+<span class="cp">#undef BRANCH2</span>
+
+<span class="cp">#define BRANCH0 0</span>
+<span class="cp">#define BRANCH1 0</span>
+<span class="cp">#define BRANCH2 1</span>
+<span class="cp">#define FN_NAME TFF</span>
+<span class="cp">#include</span> <span class="cpf">&quot;FunctionKernel.h&quot;</span><span class="cp"></span>
+<span class="cp">#undef BRANCH0</span>
+<span class="cp">#undef BRANCH1</span>
+<span class="cp">#undef BRANCH2</span>
+
+<span class="cp">#define BRANCH0 1</span>
+<span class="cp">#define BRANCH1 0</span>
+<span class="cp">#define BRANCH2 1</span>
+<span class="cp">#define FN_NAME TFT</span>
+<span class="cp">#include</span> <span class="cpf">&quot;FunctionKernel.h&quot;</span><span class="cp"></span>
+<span class="cp">#undef BRANCH0</span>
+<span class="cp">#undef BRANCH1</span>
+<span class="cp">#undef BRANCH2</span>
+
+<span class="cp">#define BRANCH0 0</span>
+<span class="cp">#define BRANCH1 1</span>
+<span class="cp">#define BRANCH2 1</span>
+<span class="cp">#define FN_NAME TTF</span>
+<span class="cp">#include</span> <span class="cpf">&quot;FunctionKernel.h&quot;</span><span class="cp"></span>
+<span class="cp">#undef BRANCH0</span>
+<span class="cp">#undef BRANCH1</span>
+<span class="cp">#undef BRANCH2</span>
+
+<span class="cp">#define BRANCH0 1</span>
+<span class="cp">#define BRANCH1 1</span>
+<span class="cp">#define BRANCH2 1</span>
+<span class="cp">#define FN_NAME TTT</span>
+<span class="cp">#include</span> <span class="cpf">&quot;FunctionKernel.h&quot;</span><span class="cp"></span>
+<span class="cp">#undef BRANCH0</span>
+<span class="cp">#undef BRANCH1</span>
+<span class="cp">#undef BRANCH2</span>
+
+<span class="cp">#define NUM_BRANCHES 3</span>
+<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">specialized_fn</span><span class="p">)()</span> <span class="n">fn_table</span><span class="p">[</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">NUM_BRANCHES</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">&amp;</span><span class="n">compute_sum_FFF</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">compute_sum_FFT</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">compute_sum_FTF</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">compute_sum_FTT</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">compute_sum_TFF</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">compute_sum_TFT</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">compute_sum_TTF</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">compute_sum_TTT</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">compute_sum</span><span class="p">(</span><span class="kt">bool</span> <span class="n">branch0</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">branch1</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">branch2</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">permutation</span> <span class="o">=</span> <span class="p">(</span><span class="n">branch0</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span>
+                      <span class="p">(</span><span class="n">branch1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span>
+                      <span class="p">(</span><span class="n">branch2</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">fn_table</span><span class="p">[</span><span class="n">permutation</span><span class="p">]();</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h1>Function&nbsp;Templates</h1>
+<p>For C++ code, an alternative is to use <em>function templates</em> to have the compiler generate the permutations. For&nbsp;example:</p>
+<div class="highlight"><pre><span></span>template &lt;bool branch0, bool branch1, bool branch2&gt;
+int compute_sum_fn()
+{
+    int sum = 0;
+    if (branch0)
+       sum |= 1;
+    if (branch1)
+       sum |= 2;
+    if (branch3)
+       sum |= 4;
+    return sum;
+}
+
+#define NUM_BRANCHES 3
+int (*specialized_fn)() fn_table[1 &lt;&lt; NUM_BRANCHES] = {
+    &amp;compute_sum_fn&lt;false, false, false&gt;,
+    &amp;compute_sum_fn&lt;false, false, true &gt;,
+    &amp;compute_sum_fn&lt;false, true,  false&gt;,
+    &amp;compute_sum_fn&lt;false, true,  true &gt;,
+    &amp;compute_sum_fn&lt;true,  false, false&gt;,
+    &amp;compute_sum_fn&lt;true,  false, true &gt;,
+    &amp;compute_sum_fn&lt;true,  true,  false&gt;,
+    &amp;compute_sum_fn&lt;true,  true,  true &gt;,
+};
+
+int compute_sum(bool branch0, bool branch1, bool branch2)
+{
+    int permutation = (branch0 &lt;&lt; 0) |
+                      (branch1 &lt;&lt; 1) |
+                      (branch2 &lt;&lt; 2);
+    return fn_table[permutation]();
+}
+</pre></div>
+
+
+<p>An optimizing compiler will see that the values in each <code>compute_sum_fn()</code> permutation are constant and remove the&nbsp;branches. </p>
+<p>I generally shy away from C++ class templates, but function templates can be very useful for code generation. In the above example, the function template version produces the same results as the C preprocessor version but with fewer lines of&nbsp;code.</p>
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+                  <ul class="list-group" id="social">
+                    <li class="list-group-item"><a href="https://github.com/jkhelil"><i
+                            class="fa fa-github-square fa-lg"></i> Github
+                    </a></li>
+                    <li class="list-group-item"><a href="http://math.stackexchange.com/users/230418/"><i
+                            class="fa fa-linkedin-square fa-lg"></i> Linkedin
+                    </a></li>
+                    <li class="list-group-item"><a href="https://twitter.com/jkhelil"><i
+                            class="fa fa-twitter-square fa-lg"></i> Twitter
+                    </a></li>
+                    <li class="list-group-item"><a href="mailto:jkhelil@iotnetworks.io"><i
+                            class="fa fa-mail-square fa-lg"></i> Mail
+                    </a></li>
+                  </ul>
+                </li>
+
+
+
+
+        </ul>
+    </section>
+
+</aside>        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Jawed khelil
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="//code.jquery.com/jquery.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+</body>
+</html>
