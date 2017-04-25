@@ -77,7 +77,7 @@ IotNetworks            </a>
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2014-05-26T13:00:00+02:00"> Mon 26 May 2014</time>
+        <i class="fa fa-calendar"></i><time datetime="2017-04-27T13:00:00+02:00"> Thu 27 April 2017</time>
     </span>
 
 
@@ -89,36 +89,35 @@ IotNetworks            </a>
                 </div>
                 <p>This blog uses the static site generator <a href="http://www.getpelican.com">Pelican</a> and is hosted on <a href="http://www.github.com">Github</a>. Here are a few notes on how I set things&nbsp;up.</p>
 <h2>Installing&nbsp;Pelican</h2>
-<p>First, get Python 2.7, and get the Python package manager Pip. For Windows, you can follow the instructions <a href="http://docs.python-guide.org/en/latest/starting/install/win/">here</a>.</p>
-<p>Make a directory for your blog, such as <code>c:\blog</code>. Then, <code>pip install pelican</code> and if you want Markdown support <code>pip install markdown</code>. Many online guides suggest you put Pelican into a Python virtualenv. That&#8217;s not necessary, but it keeps things tidy, so I made a virtualenv at <code>c:\blog</code> and installed Pelican using Pip like&nbsp;this:</p>
-<div class="highlight"><pre><span></span>virtualenv virtualenv-pelican
-cd virtualenv-pelican\scripts
-activate
+<div class="highlight"><pre><span></span>mkdir pelican
+virtualenv .pelican
+source .pelican/bin/activate
 pip install pelican markdown
+deactivate
+mkdir jkhelil.github.io.source
+mkdir jkhelil.github.io
 </pre></div>
 
 
 <h2>Creating The&nbsp;Blog</h2>
-<p>Next, I set up the blog for Pelican. I put the source content that Pelican processes into <code>c:\blog\source</code> and the generated <span class="caps">HTML</span> into <code>c:\blog\site</code> by doing&nbsp;this:</p>
-<div class="highlight"><pre><span></span>md c:\blog\source c:\blog\site
-cd c:\blog\source
+<div class="highlight"><pre><span></span>cd jkhelil.github.io.source
 pelican-quickstart
 </pre></div>
 
 
 <p>The default answers to the questions are usually reasonable, but season to&nbsp;taste.</p>
-<p>By default, Pelican puts the generated <span class="caps">HTML</span> into the <code>output</code> directory relative to pelicanconf.py. I prefer to call it the <code>site</code> directory and have it sit side-by-side the <code>source</code> directory because it makes the Github setup a bit cleaner. I edited the <code>pelicanconf.py</code> and changed the <code>OUTPUTPATH</code> variable to point to <code>c:\blog\site</code>:</p>
-<div class="highlight"><pre><span></span>OUTPUT_PATH = &#39;../site&#39;
+<p>I edited the <code>pelicanconf.py</code> and changed the <code>OUTPUTPATH</code> variable to point to <code>jkhelil.github.io</code>:</p>
+<div class="highlight"><pre><span></span>OUTPUT_PATH = &#39;../jkhelil.github.io&#39;
 </pre></div>
 
 
-<p>Then add a post in the <code>content</code> directory at <code>c:\blog\source\content</code>. A simple Markdown post should&nbsp;work:</p>
+<p>Then add a post in the <code>content</code> directory at <code>jkhelil.github.io.source\content</code>. A simple Markdown post should&nbsp;work:</p>
 <div class="highlight"><pre><span></span>Title: First Post
-Date: 2014-5-26 12:00
+Date: 2017-4-27 15:00
 Tags: Blog
 Category: Blog
 Slug: first-post
-Author: David Farrell
+Author: Jawed Khelil
 Summary: First Post
 It&#39;s so easy when everybody&#39;s trying to please me, baby
 </pre></div>
@@ -132,11 +131,11 @@ make serve
 
 <p>Browse to <code>127.0.0.1:8000</code> and, hey, it&nbsp;works!</p>
 <h2>Live&nbsp;Editing</h2>
-<p>In one shell, run <code>make regenerate</code>. This automatically regenerates the <code>site</code> directory whenever you change a file in the <code>source</code> directory. In another shell, run the local web server <code>make serve</code>. Now you can change any file, refresh your browser, and immediately see your&nbsp;changes.</p>
+<p>In one shell, run <code>make regenerate</code>. This automatically regenerates the <code>jkhelil.github.io</code> directory whenever you change a file in the <code>source</code> directory. In another shell, run the local web server <code>make serve</code>. Now you can change any file, refresh your browser, and immediately see your&nbsp;changes.</p>
 <p>The command <code>make devserver</code> will also do that, but it calls a Bash script, which doesn&#8217;t work on&nbsp;Windows.</p>
 <h2>Pelican&nbsp;Themes</h2>
 <p>The default Pelican theme isn&#8217;t spectacular. You can get additional themes by cloning the Pelican theme&nbsp;repository:</p>
-<div class="highlight"><pre><span></span>cd c:\blog\source
+<div class="highlight"><pre><span></span>cd pelican
 git clone https://github.com/getpelican/pelican-themes themes
 </pre></div>
 
@@ -155,37 +154,24 @@ EXTRA_PATH_METADATA = {&#39;extra\custom.css&#39;: {&#39;path&#39;: &#39;static\
 </pre></div>
 
 
-<p>The full <code>extra\custom.css</code> path is <code>c:\blog\source\content\extra\custom.css</code> (some of Pelican&#8217;s paths were relative to the <code>content</code> directory). The only thing my custom.css does right now is change the backtick block highlighting colors; for some reason, those colors don&#8217;t change with the Bootstrap theme or subthemes. Here&#8217;s what that looks&nbsp;like:</p>
-<div class="highlight"><pre><span></span>code {
- padding:2px 4px;
- font-size:90%;
- white-space:nowrap;
- background-color:#080808;
- color:#b0b0b0;
- border-radius:4px
-}
-</pre></div>
-
-
 <h2>Github Pages&nbsp;Hosting</h2>
-<p>I&#8217;m using <a href="https://pages.github.com/">Github Pages</a> to host this blog. I created two repositories. One is named <code>nosferalatu.github.io</code> and holds the blog site, and the other is named <code>nosferalatu.github.io.source</code> and holds the Pelican source for the blog. You can configure git branches to hold everything in a single repo, but I thought it was more straightforward to just use two&nbsp;repositories.</p>
-<p>I cleaned up the <code>themes</code> directory to remove the themes I don&#8217;t want (otherwise, that directory is around 176 megs). I then init both repositories and push them to Github with&nbsp;this:</p>
-<div class="highlight"><pre><span></span>cd c:\blog\site
+<p>I&#8217;m using <a href="https://pages.github.com/">Github Pages</a> to host this blog. I created two repositories. One is named <code>jkhelil.github.io</code> and holds the blog site, and the other is named <code>jkhelil.github.io.source</code> and holds the Pelican source for the&nbsp;blog.</p>
+<div class="highlight"><pre><span></span>cd jkhelil.github.io
 git init
 git add -A .
 git commit -m &quot;initial commit&quot;
-git remote add origin https://github.com/nosferalatu/nosferalatu.github.io.git
+git remote add origin https://github.com/jkhelil/jkhelil.github.io.git
 git push -u origin master
-cd c:\blog\source
+cd jkhelil.github.io.source
 git init
 git add -A .
 git commit -m &quot;initial commit&quot;
-git remote add origin https://github.com/nosferalatu/nosferalatu.github.io.source.git
+git remote add origin https://github.com/jkhelil/jkhelil.github.io.source.git
 git push -u origin master
 </pre></div>
 
 
-<p>A few minutes later, the blog appears at <a href="http://nosferalatu.github.io">nosferalatu.github.io</a>. </p>
+<p>A few minutes later, the blog appears at <a href="http://jkhelil.github.io">jkhelil.github.io</a>. </p>
             </div>
             <!-- /.entry-content -->
         </article>
@@ -202,7 +188,7 @@ git push -u origin master
                     <li class="list-group-item"><a href="https://github.com/jkhelil"><i
                             class="fa fa-github-square fa-lg"></i> Github
                     </a></li>
-                    <li class="list-group-item"><a href="http://math.stackexchange.com/users/230418/"><i
+                    <li class="list-group-item"><a href="https://www.linkedin.com/in/jawed-khelil/"><i
                             class="fa fa-linkedin-square fa-lg"></i> Linkedin
                     </a></li>
                     <li class="list-group-item"><a href="https://twitter.com/jkhelil"><i
@@ -227,7 +213,7 @@ git push -u origin master
    <div class="container">
       <hr>
       <div class="row">
-         <div class="col-xs-10">&copy; 2016 Jawed khelil
+         <div class="col-xs-10">&copy; 2017 Jawed khelil
             &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>

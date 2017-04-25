@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>IotNetworks - Jawed khelil</title><link href="/" rel="alternate"></link><link href="/feeds/jawed-khelil.atom.xml" rel="self"></link><id>/</id><updated>2017-04-27T13:00:00+02:00</updated><entry><title>Setting Up This Blog</title><link href="/setting-up.html" rel="alternate"></link><published>2017-04-27T13:00:00+02:00</published><updated>2017-04-27T13:00:00+02:00</updated><author><name>Jawed khelil</name></author><id>tag:None,2017-04-27:/setting-up.html</id><summary type="html">&lt;p&gt;Setting Up This&amp;nbsp;Blog&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blog uses the static site generator &lt;a href="http://www.getpelican.com"&gt;Pelican&lt;/a&gt; and is hosted on &lt;a href="http://www.github.com"&gt;Github&lt;/a&gt;. Here are a few notes on how I set things&amp;nbsp;up.&lt;/p&gt;
+&lt;h2&gt;Installing&amp;nbsp;Pelican&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mkdir pelican
+virtualenv .pelican
+source .pelican/bin/activate
+pip install pelican markdown
+deactivate
+mkdir jkhelil.github.io.source
+mkdir jkhelil.github.io
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Creating The&amp;nbsp;Blog&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cd jkhelil.github.io.source
+pelican-quickstart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The default answers to the questions are usually reasonable, but season to&amp;nbsp;taste.&lt;/p&gt;
+&lt;p&gt;I edited the &lt;code&gt;pelicanconf.py&lt;/code&gt; and changed the &lt;code&gt;OUTPUTPATH&lt;/code&gt; variable to point to &lt;code&gt;jkhelil.github.io&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;OUTPUT_PATH = &amp;#39;../jkhelil.github.io&amp;#39;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Then add a post in the &lt;code&gt;content&lt;/code&gt; directory at &lt;code&gt;jkhelil.github.io.source\content&lt;/code&gt;. A simple Markdown post should&amp;nbsp;work:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Title: First Post
+Date: 2017-4-27 15:00
+Tags: Blog
+Category: Blog
+Slug: first-post
+Author: Jawed Khelil
+Summary: First Post
+It&amp;#39;s so easy when everybody&amp;#39;s trying to please me, baby
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We should be able to generate the blog now. Try&amp;nbsp;this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;make html
+make serve
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Browse to &lt;code&gt;127.0.0.1:8000&lt;/code&gt; and, hey, it&amp;nbsp;works!&lt;/p&gt;
+&lt;h2&gt;Live&amp;nbsp;Editing&lt;/h2&gt;
+&lt;p&gt;In one shell, run &lt;code&gt;make regenerate&lt;/code&gt;. This automatically regenerates the &lt;code&gt;jkhelil.github.io&lt;/code&gt; directory whenever you change a file in the &lt;code&gt;source&lt;/code&gt; directory. In another shell, run the local web server &lt;code&gt;make serve&lt;/code&gt;. Now you can change any file, refresh your browser, and immediately see your&amp;nbsp;changes.&lt;/p&gt;
+&lt;p&gt;The command &lt;code&gt;make devserver&lt;/code&gt; will also do that, but it calls a Bash script, which doesn&amp;#8217;t work on&amp;nbsp;Windows.&lt;/p&gt;
+&lt;h2&gt;Pelican&amp;nbsp;Themes&lt;/h2&gt;
+&lt;p&gt;The default Pelican theme isn&amp;#8217;t spectacular. You can get additional themes by cloning the Pelican theme&amp;nbsp;repository:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cd pelican
+git clone https://github.com/getpelican/pelican-themes themes
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You&amp;#8217;ll find all the themes in the new &lt;code&gt;themes&lt;/code&gt; directory. To choose one, set the &lt;code&gt;THEME&lt;/code&gt; variable in &lt;code&gt;pelicanconf.py&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;THEME = &amp;#39;themes/pelican-bootstrap3&amp;#39;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I like the Pelican-Bootstrap3 theme. It has a &lt;code&gt;README.md&lt;/code&gt; that you&amp;#8217;ll want to read. The Bootstrap theme is actually themed itself with &lt;a href="http://bootswatch.com/"&gt;Bootswatch&lt;/a&gt;. You can also easily customize the &lt;span class="caps"&gt;CSS&lt;/span&gt; and set the syntax highlighting style. Here&amp;#8217;s the relevant bits in my &lt;code&gt;pelicanconf.py&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;BOOTSTRAP_THEME = &amp;#39;cyborg&amp;#39;        # Bootswatch sub-theme for Bootstrap
+PYGMENTS_STYLE = &amp;#39;monokai&amp;#39;        # Syntax highlighting theme
+CUSTOM_CSS = &amp;#39;static\custom.css&amp;#39;
+STATIC_PATHS=[&amp;#39;images&amp;#39;,&amp;#39;extra\custom.css&amp;#39;]
+EXTRA_PATH_METADATA = {&amp;#39;extra\custom.css&amp;#39;: {&amp;#39;path&amp;#39;: &amp;#39;static\custom.css&amp;#39;}}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Github Pages&amp;nbsp;Hosting&lt;/h2&gt;
+&lt;p&gt;I&amp;#8217;m using &lt;a href="https://pages.github.com/"&gt;Github Pages&lt;/a&gt; to host this blog. I created two repositories. One is named &lt;code&gt;jkhelil.github.io&lt;/code&gt; and holds the blog site, and the other is named &lt;code&gt;jkhelil.github.io.source&lt;/code&gt; and holds the Pelican source for the&amp;nbsp;blog.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cd jkhelil.github.io
+git init
+git add -A .
+git commit -m &amp;quot;initial commit&amp;quot;
+git remote add origin https://github.com/jkhelil/jkhelil.github.io.git
+git push -u origin master
+cd jkhelil.github.io.source
+git init
+git add -A .
+git commit -m &amp;quot;initial commit&amp;quot;
+git remote add origin https://github.com/jkhelil/jkhelil.github.io.source.git
+git push -u origin master
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;A few minutes later, the blog appears at &lt;a href="http://jkhelil.github.io"&gt;jkhelil.github.io&lt;/a&gt;. &lt;/p&gt;</content><category term="Blog"></category></entry><entry><title>First Post</title><link href="/first-post.html" rel="alternate"></link><published>2017-04-27T12:00:00+02:00</published><updated>2017-04-27T12:00:00+02:00</updated><author><name>Jawed Khelil</name></author><id>tag:None,2017-04-27:/first-post.html</id><summary type="html">&lt;p&gt;First&amp;nbsp;Post&lt;/p&gt;</summary><content type="html">&lt;p&gt;It&amp;#8217;s so easy when everybody&amp;#8217;s trying to please me,&amp;nbsp;baby&lt;/p&gt;</content><category term="Blog"></category></entry></feed>
